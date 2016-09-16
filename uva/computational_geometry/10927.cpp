@@ -15,7 +15,7 @@ public:
 
 	pole(int xv = 0, int yv = 0, int zv = 0) : x(xv), y(yv), z(zv), theta(atan2(yv, xv)) {}
 
-	bool operator<(const pole& p) {
+	bool operator<(const pole& p) const {
 		if(equals(this->theta, p.theta)) {
 			return (this->x * (ll) this->x + this->y * this->y) < (p.x * (ll) p.x + p.y * p.y);
 		} else {
