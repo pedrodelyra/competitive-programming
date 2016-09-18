@@ -56,13 +56,14 @@ int main(void) {
 
 		sort(edges.begin(), edges.end());
 
-		union_find ufds = union_find(n);
-		set<edge> min_spanning_tree, max_spanning_tree;
+		int min_st_cost = 0, max_st_cost = 0;
+
+		union_find ufds(n);
 		for(int i = 0; i < edges.size() && ufds.count() > 1; ++i) {
 			int w, u, v;
 			tie(w, u, v) = edges[i];
 			if(not ufds.same_set(u, v)) {
-				min_spanning_tree.insert(edges[i]);
+				min_st_cost += w;
 				ufds.union_set(u, v);
 			}
 		}
@@ -72,29 +73,13 @@ int main(void) {
 			int w, u, v;
 			tie(w, u, v) = edges[i];
 			if(not ufds.same_set(u, v)) {
-				max_spanning_tree.insert(edges[i]);
+				max_st_cost += w;
 				ufds.union_set(u, v);
 			}
 		}
 
-		set<edge> max_st, min_st;
-		set_difference(max_spanning_tree.begin(), max_spanning_tree.end(), min_spanning_tree.begin(), min_spanning_tree.end(), inserter(max_st, max_st.end()));
-		set_difference(min_spanning_tree.begin(), min_spanning_tree.end(), max_spanning_tree.begin(), max_spanning_tree.end(), inserter(min_st, min_st.end()));
-
-		int max_st_cost = 0, min_st_cost = 0;
-		for(auto& current_edge : max_st) {
-			int w, u, v;
-			tie(w, u, v) = current_edge;
-			max_st_cost += w;
-		}
-
-		for(auto& current_edge : min_st) {
-			int w, u, v;
-			tie(w, u, v) = current_edge;
-			min_st_cost += w;
-		}
-
 		printf("%d\n", max_st_cost - min_st_cost);
 	}
+
 	return 0;
 }
