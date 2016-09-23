@@ -4,74 +4,69 @@
 
 using namespace std;
 
-int n, k, A[MAX], st[MAX << 2];
+int A[MAX], bit_zero[MAX], bit_ngtv[MAX];
 
-void build_st(int p = 1, int L = 0, int R = n - 1) {
-	if(L == R) {
-		st[p] = A[L];
-	} else {
-		int mid = (L + R) >> 1;
-		build_st(2 * p, L, mid);
-		build_st(2 * p + 1, mid + 1, R);
-		st[p] = st[2 * p] * st[2 * p + 1];
+void update(int* fenwick, int idx, int value, int n) {
+	while(idx <= n) {
+		fenwick[idx] += value;
+		idx += idx & -idx;
 	}
 }
 
-int query(int i, int j, int p = 1, int L = 0, int R = n - 1) {
-	if(i > R || j < L) {
-		return 1;
+int query(int* fenwick, int idx) {
+	int sum = 0;
+	while(idx) {
+		sum += fenwick[idx];
+		idx -= idx & -idx;
 	}
-
-	if(L >= i && R <= j) {
-		return st[p];
-	}
-
-	int mid = (L + R) >> 1;
-	return query(i, j, 2 * p, L, mid) * query(i, j, 2 * p + 1, mid + 1, R);
-}
-
-void update(int index, int value, int p = 1, int L = 0, int R = n - 1) {
-	if(L == R) {
-		A[index] = st[p] = value;
-	} else {
-		int mid = (L + R) >> 1;
-
-		if(index <= mid) {
-			update(index, value, 2 * p, L, mid);
-		} else {
-			update(index, value, 2 * p + 1, mid + 1, R);
-		}
-
-		st[p] = st[2 * p] * st[2 * p + 1];
-	}
+	return sum;
 }
 
 int main(void) {
+	int n, k;
 	while(~scanf("%d %d", &n, &k)) {
-		for(int i = 0; i < n; ++i) {
+		memset(bit_zero, 0, sizeof bit_zero);
+		memset(bit_ngtv, 0, sizeof bit_ngtv);
+		for(int i = 1; i <= n; ++i) {
 			scanf("%d", &A[i]);
-			if(A[i]) A[i] /= abs(A[i]);
+			update(bit_zero, i, A[i] == 0, n);
+			update(bit_ngtv, i, A[i] < 0, n);
 		}
 
-		memset(st, 0, sizeof st);
-		build_st();
-
 		while(k--) {
-			char command;
-			scanf(" %c", &command);
-			if(command == 'C') {
-				int index, value;
-				scanf("%d %d", &index, &value);
-				if(value) value /= abs(value);
-				update(index - 1, value);
+			char cmd;
+			scanf(" %c", &cmd);
+
+			if(cmd == 'C') {
+				int idx, value;
+				scanf("%d %d", &idx, &value);
+				if(A[idx]) {
+					update(bit_zero, idx, value == 0 ?  1 : 0, n);
+				} else {
+					update(bit_zero, idx, value != 0 ? -1 : 0, n);
+				}
+
+				if(A[idx] >= 0) {
+					update(bit_ngtv, idx, value < 0 ? 1 : 0, n);
+				} else {
+					update(bit_ngtv, idx, value >= 0 ? -1 : 0, n);
+				}
+
+				A[idx] = value;
 			}
 
-			if(command == 'P') {
-				int i, j, result;
+			if(cmd == 'P') {
+				int i, j;
 				scanf("%d %d", &i, &j);
-				result = query(i - 1, j - 1);
-
-				printf("%c", result ? (result > 0 ? '+' : '-') : '0');
+				int num_zeros = query(bit_zero, j) - query(bit_zero, i - 1);
+				int num_ngtvs = query(bit_ngtv, j) - query(bit_ngtv, i - 1);
+				if(num_zeros) {
+					printf("0");
+				} else if(num_ngtvs & 1) {
+					printf("-");
+				} else {
+					printf("+");
+				}
 			}
 		}
 		printf("\n");
