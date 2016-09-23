@@ -67,8 +67,7 @@ int main(void) {
 		build_segtree(1, 0, euler_tour.size());
 		vi first_occur(n, -1);
 		for(int i = 0; i < euler_tour.size(); ++i) {
-			if(!~first_occur[euler_tour[i]]) first_occur[euler_tour[i]] = i;
-			
+			if(!~first_occur[euler_tour[i]]) first_occur[euler_tour[i]] = i;			
 		}
 
 		int queries;
