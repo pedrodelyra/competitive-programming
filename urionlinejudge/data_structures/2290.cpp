@@ -4,7 +4,7 @@ using namespace std;
 
 int main(void) {
 	int n;
-	while(scanf("%d", &n), n) {
+	while(~scanf("%d", &n) and n) {
 		long long x = 0, A[n];
 		for(int i = 0; i < n; ++i) {
 			scanf("%lld", &A[i]);
@@ -19,7 +19,6 @@ int main(void) {
 				b ^= A[i];
 			}
 		}
-
 		printf("%lld %lld\n", min(a, b), max(a, b));
 	}
 	return 0;
