@@ -11,13 +11,18 @@ int main(void) {
 		scanf("%d", &A[i]);
 		max_size = max(max_size, A[i]);
 	}
-	int ans = -1;
-	for(int j = max_size; !~ans && j >= 1; --j) {
-		int sum = 0;
+	int ans, low = 0, high = max_size;
+	while(low <= high) {
+		int mid = (low + high) >> 1, sum = 0;
 		for(int i = 0; i < k; ++i) {
-			sum += A[i] / j;
+			sum += A[i] / mid;
 		}
-		if(sum >= n) ans = j;
+		if(sum < n) {
+			high = mid - 1;
+		} else if(sum >= n) {
+			ans = mid;
+			low = mid + 1;
+		}
 	}
 	printf("%d\n", ans);
 	return 0;
