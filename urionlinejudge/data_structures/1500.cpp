@@ -3,76 +3,58 @@
 #define MAX 100005
 
 using namespace std;
-using ll = long long int;
+using lld = long long int;
 
 int n, k;
-ll A[MAX], st[MAX << 2], lazy[MAX << 2];
+lld st[MAX << 2], lazy[MAX << 2];
 
-void build_st(int p = 1, int L = 0, int R = n - 1) {
-	if(L == R) {
-		st[p] = A[L];
-	} else {
-		int mid = (L + R) >> 1;
-		build_st(2 * p, L, mid);
-		build_st(2 * p + 1, mid + 1, R);
-		st[p] = st[2 * p] + st[2 * p + 1];
-	}
-}
-
-ll query(int p, int L, int R, int i, int j) {	
-	if(i > R || j < L) return 0;
+lld query(int i, int j, int p = 1, int l = 0, int r = n - 1) {
+	if(i > r or j < l) return 0;
 
 	if(lazy[p]) {
-		st[p] += (R - L + 1) * lazy[p];
-
-		if(L != R) {
-			lazy[2 * p] += lazy[p];
-			lazy[2 * p + 1] += lazy[p];
+		st[p] += (r - l + 1) * lazy[p];
+		if(l != r) {
+			lazy[p << 1] += lazy[p];
+			lazy[p << 1 | 1] += lazy[p];
 		}
-
 		lazy[p] = 0;
 	}
 
-	if(L >= i && R <= j) {
+	if(l >= i and r <= j) {
 		return st[p];
 	}
 
-	int mid = (L + R) >> 1;
-	ll q1 = query(2 * p, L, mid, i, j);
-	ll q2 = query(2 * p + 1, mid + 1, R, i, j);
-	return q1 + q2;
+	int mid = (l + r) >> 1;
+	lld x = query(i, j, p << 1, l, mid);
+	lld y = query(i, j, p << 1 | 1, mid + 1, r);
+	return x + y;
 }
 
-void update(int p, int L, int R, int i, int j, ll value) { 
+void update(int i, int j, lld value, int p = 1, int l = 0, int r = n - 1) {
 	if(lazy[p]) {
-		st[p] += (R - L + 1) * lazy[p];
-
-		if(L != R) {
-			lazy[2 * p] += lazy[p];
-			lazy[2 * p + 1] += lazy[p];
+		st[p] += (r - l + 1) * lazy[p];
+		if(l != r) {
+			lazy[p << 1] += lazy[p];
+			lazy[p << 1 | 1] += lazy[p];
 		}
-
 		lazy[p] = 0;
 	}
   
-	if(i > R || j < L) return;
+	if(i > r or j < l) return;
     
-	if(L >= i && R <= j) {
-		st[p] += (R - L + 1) * value;
-
-		if(L != R) {
-			lazy[2 * p] += value;
-			lazy[2 * p + 1] += value;
+	if(l >= i and r <= j) {
+		st[p] += (r - l + 1) * value;
+		if(l != r) {
+			lazy[p << 1] += value;
+			lazy[p << 1 | 1] += value;
 		}
-
 		return;
 	}
 
-	int mid = (L + R) >> 1;
-	update(2 * p, L, mid, i, j, value);
-	update(2 * p + 1, mid + 1, R, i, j, value);
-
-	st[p] = st[2 * p] + st[2 * p + 1];
+	int mid = (l + r) >> 1;
+	update(i, j, value, p << 1, l, mid);
+	update(i, j, value, p << 1 | 1, mid + 1, r);
+	st[p] = st[p << 1] + st[p << 1 | 1];
 }
 
 int main(void) {
@@ -80,23 +62,21 @@ int main(void) {
 	scanf("%d", &tc);
 	while(tc--) {
 		scanf("%d %d", &n, &k);
-		memset(A, 0, sizeof A);
+		memset(st,   0, sizeof st);
 		memset(lazy, 0, sizeof lazy);
-		build_st();
 		for(int i = 0; i < k; ++i) {
 			int command;
 			scanf("%d", &command);
 			if(command) {
 				int a, b;
 				scanf("%d %d", &a, &b);
-				printf("%lld\n", query(1, 0, n - 1, a - 1, b - 1));
+				printf("%lld\n", query(a - 1, b - 1));
 			} else {
 				int a, b, v;
 				scanf("%d %d %d", &a, &b, &v);
-				update(1, 0, n - 1, a - 1, b - 1, v);
+				update(a - 1, b - 1, v);
 			}
 		}
 	}
-
 	return 0;
 }
