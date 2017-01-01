@@ -4,9 +4,10 @@
 
 using namespace std;
 
-int divisors[MAX + 5], hyperprime[MAX + 5], sum[MAX + 5];
+int  divisors[MAX + 5], sum[MAX + 5];
+bool hyperprime[MAX + 5];
 
-inline bool is_prime(int n) {
+bool is_prime(int n) {
 	return divisors[n] == 2;
 }
 
@@ -18,8 +19,9 @@ int main(void) {
 	}
 
 	for(int i = 1; i <= MAX; ++i) {
-		if(is_prime(divisors[i]))
+		if(is_prime(divisors[i])) {
 			hyperprime[i] = true;
+		}
 	}
 
 	for(int i = 1; i <= MAX; ++i) {
@@ -30,6 +32,5 @@ int main(void) {
 	while(~scanf("%d", &n)) {
 		printf("%d\n", sum[n]);
 	}
-
 	return 0;
 }
