@@ -1,0 +1,46 @@
+0. Motivação
+    0.1 O problema dos pareamentos de alunos
+        0.1.1 Programador não competitivo A
+        0.1.2 Programador não competitivo B
+        0.1.3 Programador competitivo A
+        0.1.4 Programador competitivo B
+        0.1.4 Programador competitivo C
+
+    0.2 Os tipos de problemas
+
+    0.3 Classificar um problema
+        0.3.1 Eu já resolvi este problema antes
+        0.3.2 Eu sei resolver mas sei que demanda tempo
+        0.3.3 Este problema não me é estranho, mas não tenho certeza se posso resolvê-lo
+        0.3.4 Eu não sei o que eu estou fazendo da minha vida
+
+    0.4 Dicas
+        0.4.1 Organização da equipe e estratégias
+        0.4.2 Como programar
+        0.4.3 Qual solução escolher?
+
+    0.5 Materiais
+
+1. Introdução ao C++
+    1.1 Estruturas de controle
+    1.2 Operações
+    1.3 Classes e structs
+    1.4 Namespaces e templates
+    1.5 Considerações sobre tipos de dados e seus usos
+
+2. Complexidade de algoritmos
+    2.1 O(1)       - O quadrado de n
+    2.2 O(n)       - Menor elemento de um array
+    2.3 O(n²)      - Selection sort
+    2.4 O(log n)   - Busca binária para encontrar a raíz
+    2.5 O(√n)      - Verificar se um número é primo
+    2.6 O(n log n) - Merge sort
+    2.7 O(n!)      - Permutações de um conjunto
+
+3. STL
+    3.1 Vector (falar sobre diferença entre vector e array)
+    3.2 Lista encadeada (List)
+    3.3 Stack
+    3.4 Queue
+    3.5 Map / Set (RBT)
+    3.6 Priority queue (Heap)
