@@ -1,12 +1,11 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-using msi = map<string, int>;
 
 int main(void) {
 	int n;
 	while(scanf("%d", &n), n) {
-		msi in_degree, out_degree;
+		map<string, int> in_degree, out_degree;
 		int max_in = 0, max_out = 0;
 		for(int i = 1; i <= n; ++i) {
 			char u[32], v[32];
