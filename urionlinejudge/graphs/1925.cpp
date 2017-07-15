@@ -1,69 +1,55 @@
 #include <bits/stdc++.h>
 
-#define MAX 1024
-
 using namespace std;
 using ii = pair<int, int>;
 
-char grid[MAX][MAX];
-int n, m, colors[MAX][MAX], flood_fill[MAX * MAX], visiteds;
-vector<ii> movements = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}}, sources;
+char grid[1024][1024];
+int  color[1024][1024], ccs[1000005];
+set<int> neighbours[1024][1024];
+vector<ii> movements = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
-void dfs(int x, int y, int color) {
-	colors[x][y] = color;
-	for(auto& move : movements) {
-		int dx = move.first, dy = move.second;
-		if(grid[x + dx][y + dy] == 'n' && not colors[x + dx][y + dy]) {
-			dfs(x + dx, y + dy, color);
-		}
-	}
-	++visiteds;
+void dfs(int x, int y, int k, int& count) {
+        color[x][y] = k;
+        for(auto& move : movements) {
+                int dx = move.first, dy = move.second;
+                if(grid[x + dx][y + dy] == 'n' and color[x + dx][y + dy] == 0) {
+                        dfs(x + dx, y + dy, k, count);
+                } else if(grid[x + dx][y + dy] == '*') {
+                        neighbours[x + dx][y + dy].insert(k);
+                }
+        }
+        ++count;
 }
 
-int main(void) {
-	int max_visiteds = 0, color = 0;
-	scanf("%d %d", &n, &m);
-	memset(grid, -1, sizeof grid);
-	for(int i = 1; i <= n; ++i) {
-		for(int j = 1; j <= m; ++j) {
-			char c;
-			scanf(" %c", &grid[i][j]);
-
-			if(grid[i][j] == '*') sources.push_back(ii(i, j));
-		}
-	}
-
-	for(int i = 1; i <= n; ++i) {
-		for(int j = 1; j <= m; ++j) {
-			if(grid[i][j] == 'n' && not colors[i][j]) {
-				visiteds = 0;
-				dfs(i, j, ++color);
-				flood_fill[color] = visiteds;
-			}
-		}
-	}
-
-	ii ans;
-	for(auto& source : sources) {
-		int x = source.first, y = source.second;
-		set<int> adj_colors;
-		for(auto& move : movements) {
-			int dx = move.first, dy = move.second;
-			if(grid[x + dx][y + dy] == 'n') adj_colors.insert(colors[x + dx][y + dy]);
-		}
-
-		int vis = 0;
-		for(auto& c : adj_colors) {
-			vis += flood_fill[c];
-		}
-
-		if(max_visiteds < vis) {
-			ans = ii(x, y);
-			max_visiteds = vis;
-		}
-	}
-
-	printf("%d,%d\n", ans.first, ans.second);
-
-	return 0;
+int main() {
+        int n, m;
+        scanf("%d %d", &n, &m);
+        for(int i = 1; i <= n; ++i)
+                for(int j = 1; j <= m; ++j)
+                        scanf(" %c", &grid[i][j]);
+        int k = 1;
+        for(int i = 1; i <= n; ++i) {
+                for(int j = 1; j <= m; ++j) {
+                        if(grid[i][j] == 'n' and color[i][j] == 0) {
+                                int count = 0;
+                                dfs(i, j, k, count);
+                                ccs[k++] = count;
+                        }
+                }
+        }
+        int x, y, max_count = 0;
+        for(int i = 1; i <= n; ++i) {
+                for(int j = 1; j <= m; ++j) {
+                        if(grid[i][j] == '*') {
+                                int count = 0;
+                                for(auto& x : neighbours[i][j]) {
+                                        count += ccs[x];
+                                }
+                                if(count > max_count)
+                                        max_count = count, x = i, y = j;
+                        }
+                }
+        }
+        printf("%d,%d\n", x, y);
+        return 0;
 }
