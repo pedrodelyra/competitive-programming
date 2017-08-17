@@ -1,68 +1,52 @@
 #include <bits/stdc++.h>
 
-#define MAX 128
 #define oo 0x3f3f3f3f
 
 using namespace std;
-using ii = pair<int, int>;
-using vii = vector<ii>;
-using state = tuple<int, int, int>;
+using iii = tuple<int, int, int>;
+using vii = vector<pair<int, int>>;
 
+const int MAX = 128;
+
+int  n, m, k, dist[MAX][MAX];
 char grid[MAX][MAX];
-int n, m, dist[MAX][MAX];
-vii movements = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+vii  moves = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-int dijkstra(ii source) {
-	int x0, y0, min_cost = oo;
-	tie(x0, y0) = source;
+int dijkstra(int x0, int y0) {
+        priority_queue<iii, vector<iii>, greater<iii>> pq;
+        memset(dist, oo, sizeof dist);
+        pq.push(iii(dist[x0][y0] = 0, x0, y0));
+        while(not pq.empty()) {
+                int curr_dist, x, y;
+                tie(curr_dist, x, y) = pq.top(); pq.pop();
 
-	memset(dist, oo, sizeof dist);
-	dist[x0][y0] = 0;
-	priority_queue<state, vector<state>, greater<state>> pq;
-	pq.push(state(dist[x0][y0], x0, y0));
-	while(not pq.empty()) {
-		auto current_pos = pq.top();
-		pq.pop();
+                if(curr_dist > dist[x][y]) continue;
 
-		int current_dist, x, y;
-		tie(current_dist, x, y) = current_pos;
+                if(x == 1 || y == 1 || x == n || y == m) return curr_dist;
 
-		if(current_dist > dist[x][y]) continue;
-
-		if(x == 1 || x == n || y == 1 || y == m) min_cost = min(min_cost, dist[x][y]);
-
-		for(auto& move : movements) {
-			int dx = move.first, dy = move.second, cost, valid_move;
-			cost = (dx == 1 && grid[x + dx][y] == 'v') || (!~dx && grid[x + dx][y] == '^') ||
-			       (dy == 1 && grid[x][y + dy] == '>') || (!~dy && grid[x][y + dy] == '<');
-
-			valid_move = (dx && (grid[x + dx][y] == 'v' || grid[x + dx][y] == '^')) ||
-				     (dy && (grid[x][y + dy] == '>' || grid[x][y + dy] == '<'));
-
-			if(valid_move && dist[x + dx][y + dy] > dist[x][y] + cost) {
-				dist[x + dx][y + dy] = dist[x][y] + cost;
-				pq.push(state(dist[x + dx][y + dy], x + dx, y + dy));
-			}
-		}
-	}
-
-	return min_cost;
+                for(auto& m : moves) {
+                        int dx = m.first, dy = m.second,
+                             w = (dx == 1 && grid[x + dx][y + dy] == 'v') || (dx == -1 && grid[x + dx][y + dy] == '^') ||
+                                 (dy == 1 && grid[x + dx][y + dy] == '>') || (dy == -1 && grid[x + dx][y + dy] == '<');
+                        bool valid_move = (dx && (grid[x + dx][y + dy] == 'v' || grid[x + dx][y + dy] == '^')) ||
+                                          (dy && (grid[x + dx][y + dy] == '>' || grid[x + dx][y + dy] == '<'));
+                        if(valid_move && dist[x + dx][y + dy] > curr_dist + w) {
+                                pq.push(iii(dist[x + dx][y + dy] = curr_dist + w, x + dx, y + dy));
+                        }
+                }
+        }
+        return oo;
 }
 
-int main(void) {
-	int k;
-	while(scanf("%d %d %d", &n, &m, &k), n | m | k) {
-		ii source((n + 1) >> 1, (m + 1) >> 1);
-		memset(grid, 0, sizeof grid);
-		for(int i = 1; i <= n; ++i) {
-			for(int j = 1; j <= m; ++j) {
-				scanf(" %c", &grid[i][j]);
-			}
-		}
-
-		int min_cost = dijkstra(source);
-		printf(min_cost <= k ? "Sim\n" : "Nao\n");
-	}
-
-	return 0;
+int main() {
+        while(cin >> n >> m >> k, n | m | k) {
+                memset(grid, 0, sizeof grid);
+                for(int i = 1; i <= n; ++i) {
+                        for(int j = 1; j <= m; ++j) {
+                                cin >> grid[i][j];
+                        }
+                }
+                cout << (dijkstra(n + 1 >> 1, m + 1 >> 1) <= k ? "Sim" : "Nao") << endl;
+        }
+        return 0;
 }

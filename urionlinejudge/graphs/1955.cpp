@@ -4,49 +4,42 @@
 
 using namespace std;
 
-vector<int> graph[MAX];
-int grid[MAX][MAX], color[MAX];
+vector<int> graph[MAX], colors(MAX);
 
 bool bfs(int source) {
 	queue<int> q;
-	color[source] = 1;
+	colors[source] = 0;
 	q.push(source);
 	while(not q.empty()) {
-		auto u = q.front();
-		for(auto& v : graph[u]) {
-			if(!~color[v]) {
-				color[v] = !color[u];
+		auto u = q.front(); q.pop();
+                for(auto& v : graph[u]) {
+			if(!~colors[v]) {
+				colors[v] = 1 - colors[u];
 				q.push(v);
-			} else if(color[u] == color[v]) {
+			} else if(colors[u] == colors[v]) {
 				return false;
 			}
 		}
-
-		q.pop();
 	}
-
 	return true;
 }
 
 int main(void) {
 	int n;
-	scanf("%d", &n);
-	for(int i = 1; i <= n; ++i) {
-		for(int j = 1; j <= n; ++j) {
-			scanf("%d", &grid[i][j]);
-			if(grid[i][j] == 0) graph[i].push_back(j);
+        cin >> n;
+	bool is_bipartite = true;
+	for(int u = 1; u <= n; ++u) {
+		for(int v = 1; v <= n; ++v) {
+                        int x; cin >> x;
+                        if(x == 0) graph[u].push_back(v);
 		}
 	}
-
-	bool ans = true;
-	memset(color, -1, sizeof color);
-	for(int u = 1; u <= n && ans; ++u) {
-		if(!~color[u]) {
-			ans &= bfs(u);
+        fill(begin(colors), end(colors), -1);
+	for(int u = 1; u <= n; ++u) {
+		if(!~colors[u]) {
+			is_bipartite &= bfs(u);
 		}
 	}
-
-	printf(ans ? "Bazinga!\n" : "Fail!\n");
-
+	cout << (is_bipartite ? "Bazinga!" : "Fail!") << endl;
 	return 0;
 }
