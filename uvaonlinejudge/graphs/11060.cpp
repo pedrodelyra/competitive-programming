@@ -1,50 +1,43 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+using edge = pair<int, string>;
 
-int main(void) {
-	int n, m, tc = 0, in_degree[128];
-	while(scanf("%d", &n) != EOF) {
-		vector<int> graph[128];
-		vector<string> beverages(n + 1);
-		map<string, int> name_id;
-		for(int i = 1; i <= n; ++i) {
-			char beverage[128];
-			scanf(" %s", beverage);
-			name_id[beverage] = i;
-			beverages[i] = beverage;
-		}
-
-		scanf("%d", &m);
-		memset(in_degree, 0, sizeof in_degree);
-		for(int i = 0; i < m; ++i) {
-			char first_bvrg[128], second_bvrg[128];
-			scanf(" %s %s", first_bvrg, second_bvrg);
-			int u = name_id[first_bvrg], v = name_id[second_bvrg];
-			graph[u].push_back(v);
-			in_degree[v]++;
-		}
-
-		priority_queue<int, vector<int>, greater<int>> bvrg_list;
-		for(int u = 1; u <= n; ++u) {
-			if(in_degree[u] == 0)
-				bvrg_list.push(u);
-		}
-
-		printf("Case #%d: Dilbert should drink beverages in this order:", ++tc);
-		while(not bvrg_list.empty()) {
-			int u = bvrg_list.top();
-			bvrg_list.pop();
-			printf(" %s", beverages[u].c_str());
-			for(auto& v : graph[u]) {
-				if(--in_degree[v] == 0) {
-					bvrg_list.push(v);
-				}
-			}
-		}
-
-		printf(".\n\n");
-	}
-
-	return 0;
+int main() {
+        int n, tc = 0;
+        while(cin >> n) {
+                vector<string> beverages(n);
+                for(int i = 0; i < n; ++i) {
+                        cin >> beverages[i];
+                }
+                int m; cin >> m;
+                map<string, vector<edge>> graph;
+                map<string, int> in_degree;
+                for(int i = 0; i < m; ++i) {
+                        string u, v;
+                        cin >> u >> v;
+                        graph[u].push_back(edge(distance(begin(beverages), find(begin(beverages), end(beverages), v)), v));
+                        in_degree[v]++;
+                }
+                priority_queue<edge, vector<edge>, greater<edge>> pq;
+                for(int i = 0; i < beverages.size(); ++i) {
+                        string u = beverages[i];
+                        if(in_degree[u] == 0) {
+                                pq.push(edge(i, u));
+                        }
+                }
+		cout << "Case #" << ++tc << ": Dilbert should drink beverages in this order:";
+                while(not pq.empty()) {
+                        auto u = pq.top().second; pq.pop();
+                        cout << " " << u;
+                        for(auto& curr_edge : graph[u]) {
+                                string v = curr_edge.second; int idx = curr_edge.first;
+                                if(--in_degree[v] == 0) {
+                                        pq.push(edge(idx, v));
+                                }
+                        }
+                }
+                cout << "." << endl << endl;
+        }
+        return 0;
 }

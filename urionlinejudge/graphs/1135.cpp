@@ -1,92 +1,75 @@
 #include <bits/stdc++.h>
 
-#define MAX 100005
-
 using namespace std;
-using ll = long long int;
-using ii = pair<int, int>;
-using vi = vector<int>;
-using vii = vector<ii>;
+using lld = long long;
+using ll  = pair<int, lld>;
 
-vii tree[MAX];
-vi euler_tour;
-ll dist[MAX], segtree[MAX << 3]; 
+const lld oo = 1LL << 30, MAX_N = 2e5 + 5;
 
-void dfs(int u, ll current_dist) {
-	euler_tour.push_back(u);
-	dist[u] = current_dist;
-	for(auto& edge : tree[u]) {
-		int v = edge.second, w = edge.first;
-		dfs(v, dist[u] + w);
-		euler_tour.push_back(u);
-	}
+vector<ll>  tree[MAX_N];
+vector<int> st(MAX_N << 2, 0), f(MAX_N, 0), euler(MAX_N << 1);
+vector<lld> dist(MAX_N);
+int n, k;
+
+void build_st(int p = 1, int l = 1, int r = k) {
+        if(l == r) {
+                st[p] = euler[l];
+        } else {
+                int m = l + r >> 1;
+                build_st(p << 1, l, m);
+                build_st(p << 1 | 1, m + 1, r);
+                st[p] = dist[st[p << 1]] < dist[st[p << 1 | 1]] ? st[p << 1] : st[p << 1 | 1];
+        }
 }
 
-void build_segtree(int p, int L, int R) {
-	if(L == R) {
-		segtree[p] = euler_tour[L];
-	} else {
-		int mid = (L + R) >> 1;
-		build_segtree(2 * p, L, mid);
-		build_segtree(2 * p + 1, mid + 1, R);
-
-		int u = segtree[2 * p], v = segtree[2 * p + 1];
-		segtree[p] = dist[u] < dist[v] ? u : v;
-	}
+int query(int i, int j, int p = 1, int l = 1, int r = k) {
+        if(i > r or j < l) {
+                return -1;
+        } else if(i <= l and r <= j) {
+                return st[p];
+        } else {
+                int m = l + r >> 1;
+                int x = query(i, j, p << 1, l, m), y = query(i, j, p << 1 | 1, m + 1, r);
+                if(!~x) return y;
+                if(!~y) return x;
+                return dist[x] < dist[y] ? x : y;
+        }
 }
 
-int LCA(int i, int j, int p, int L, int R) {
-	if(i > R || j < L) {
-		return -1;
-	}
-
-	if(L >= i && R <= j) {
-		return segtree[p];
-	}
-
-	int mid = (L + R) >> 1;
-	int u = LCA(i, j, 2 * p, L, mid), v = LCA(i, j, 2 * p + 1, mid + 1, R);
-
-	if(!~u) return v;
-	if(!~v) return u;
-
-	return dist[u] < dist[v] ? u : v;
+void dfs(int u, lld d = 0) {
+        dist[euler[f[u] = ++k] = u] = d;
+        for(auto& edge : tree[u]) {
+                int v = edge.first; lld w = edge.second;
+                if(!~dist[v]) {
+                        dfs(v, d + w);
+                        euler[++k] = u;
+                }
+        }
 }
 
-int main(void) {
-	int n;
-	while(scanf("%d", &n), n) {
-		const int root = 0;
-		for(int v = 1; v < n; ++v) {
-			int u, w;
-			scanf("%d %d", &u, &w);
-			tree[u].push_back(ii(w, v));
-		}
+int lca(int u, int v) {
+        int a = min(f[u], f[v]), b = max(f[u], f[v]);
+        return query(a, b);
+}
 
-		dfs(root, 0);
-		build_segtree(1, 0, euler_tour.size());
-		vi first_occur(n, -1);
-		for(int i = 0; i < euler_tour.size(); ++i) {
-			if(!~first_occur[euler_tour[i]]) first_occur[euler_tour[i]] = i;			
-		}
-
-		int queries;
-		scanf("%d", &queries);
-		for(int q = 0; q < queries; ++q) {
-			int u, v;
-			scanf("%d %d", &u, &v);
-
-			int x = min(first_occur[u], first_occur[v]), y = max(first_occur[u], first_occur[v]), lca = LCA(x, y, 1, 0, euler_tour.size());
-
-			if(q) printf(" ");
-			printf("%lld", dist[u] + dist[v] - 2 * dist[lca]);
-		}
-		printf("\n");
-
-		for(int u = 0; u < n; ++u) tree[u].clear();	
-
-		euler_tour.clear();
-	}
-
-	return 0;
+int main() {
+        const int root = 1;
+        while(scanf("%d", &n), n) {
+                for(int u = 1; u < n; ++u) {
+                        int v, w;
+                        scanf("%d %d", &v, &w);
+                        tree[u + 1].push_back(ll(v + 1, w));
+                        tree[v + 1].push_back(ll(u + 1, w));
+                }
+                fill(begin(dist), end(dist), -1), dfs(root, k = 0), build_st();
+                int queries; scanf("%d", &queries);
+                for(int q = 1; q <= queries; ++q) {
+                        int u, v;
+                        scanf("%d %d", &u, &v);
+                        printf("%lld%c", dist[u + 1] + dist[v + 1] - 2 * dist[lca(u + 1, v + 1)], " \n"[q == queries]);
+                }
+                for(int u = 0; u < n; ++u)
+                        tree[u + 1].clear();
+        }
+        return 0;
 }
